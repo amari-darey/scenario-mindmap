@@ -1,0 +1,3 @@
+class ModuleManager:
+    def __init__(self):
+        ...
