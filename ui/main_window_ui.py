@@ -4,8 +4,10 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QFontComboBox, 
     QSpinBox, QCheckBox, QHBoxLayout
 )
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtCore import Qt
+
+import config
 
 
 class MainWindowUI:
@@ -19,9 +21,9 @@ class MainWindowUI:
 
     def _create_main_window(self, main_window):
         main_window.setWindowTitle("scenarioMindMap")
-        main_window.resize(1200, 800)
-        self.placeholder_central = QWidget()
-        main_window.setCentralWidget(self.placeholder_central)
+        main_window.resize(*config.main_window_size)
+        placeholder_central = QWidget()
+        main_window.setCentralWidget(placeholder_central)
 
     def _create_menubar(self, main_window):
         
@@ -92,8 +94,14 @@ class MainWindowUI:
         self.toolbar.setOrientation(Qt.Orientation.Vertical)
         main_window.addToolBar(Qt.ToolBarArea.LeftToolBarArea, self.toolbar)
 
+        self.act_actors = QAction("Actors", main_window)
+        self.act_actors.setIcon(QIcon("resources/icons/toolbar/actor.svg"))
+        self.toolbar.addAction(self.act_actors)
+
         self.act_export = QAction("Export PNG", main_window)
+        self.act_export.setIcon(QIcon("resources/icons/toolbar/saveToPng.svg"))
         self.toolbar.addAction(self.act_export)
+
         self.toolbar.addSeparator()
 
     def _create_info_bar(self, main_window):
