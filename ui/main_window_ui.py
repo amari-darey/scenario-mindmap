@@ -32,9 +32,13 @@ class MainWindowUI:
         file_menu = menubar.addMenu("&File")
         self.menubar_menu_module = menubar.addMenu("&Module")
 
+        self.act_undo = QAction("&Undo", main_window)
+        self.act_redo = QAction("&Redo", main_window)
         self.act_save = QAction("&Save", main_window)
         self.act_load = QAction("&Load", main_window)
 
+        file_menu.addAction(self.act_undo)
+        file_menu.addAction(self.act_redo)
         file_menu.addAction(self.act_save)
         file_menu.addAction(self.act_load)
 
