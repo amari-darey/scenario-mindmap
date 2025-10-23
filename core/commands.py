@@ -1,5 +1,9 @@
 from core.edge import EdgeItem
 
+from collections import deque
+
+from config import command_stack_max_len
+
 
 class Command:
     def do(self):
@@ -10,40 +14,22 @@ class Command:
 
 class CommandStack:
     def __init__(self):
-        self._stack = []
-        self._index = -1
+        self._undo_stack = deque(maxlen=command_stack_max_len)
+        self._redo_stack = deque(maxlen=command_stack_max_len)
 
     def push(self, cmd: Command):
-        self._stack = self._stack[:self._index+1]
         cmd.do()
-        self._stack.append(cmd)
-        self._index += 1
+        self._undo_stack.append(cmd)
+        self._redo_stack.clear()
 
     def undo(self):
-        if self._index >= 0:
-            cmd = self._stack[self._index]
+        if self._undo_stack:
+            cmd = self._undo_stack.pop()
             cmd.undo()
-            self._index -= 1
+            self._redo_stack.append(cmd)
 
     def redo(self):
-        if self._index + 1 < len(self._stack):
-            self._index += 1
-            self._stack[self._index].do()
-
-
-class AddNodeCommand(Command):
-    def __init__(self, scene, node, parent_node=None):
-        self.scene = scene 
-        self.node = node
-        self.parent_node = parent_node
-        self.edge = None
-
-    def do(self):
-        self.scene.addItem(self.node)
-        if self.parent_node:
-            self.edge = EdgeItem(self.parent_node, self.node)
-            self.scene.addItem(self.edge)
-    def undo(self):
-        if self.edge: 
-            self.scene.removeItem(self.edge)
-        self.scene.removeItem(self.node)
+        if self._redo_stack:
+            cmd = self._redo_stack.pop()
+            cmd.do()
+            self._undo_stack.append(cmd)

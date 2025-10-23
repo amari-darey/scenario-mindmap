@@ -36,11 +36,16 @@ class MainWindowUI:
         self.act_redo = QAction("&Redo", main_window)
         self.act_save = QAction("&Save", main_window)
         self.act_load = QAction("&Load", main_window)
+        self.act_settings = QAction("&Settings", main_window)
+
+        self.act_undo.setShortcut("Ctrl+Z")
+        self.act_redo.setShortcut("Ctrl+Shift+Z")
 
         file_menu.addAction(self.act_undo)
         file_menu.addAction(self.act_redo)
         file_menu.addAction(self.act_save)
         file_menu.addAction(self.act_load)
+        file_menu.addAction(self.act_settings)
 
     def _create_sidebar(self, main_window):
         dock = QDockWidget("Node inspector", main_window)

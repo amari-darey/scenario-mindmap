@@ -1,10 +1,11 @@
-from PyQt6.QtWidgets import QMainWindow, QMenu
+from PyQt6.QtWidgets import QMainWindow, QMenu, QColorDialog
 from PyQt6.QtGui import QColor
 from PyQt6.QtCore import Qt, QPointF
 
 from controllers.main_window_adapter import MainWindowAdapter
 from controllers.node_context_service import NodeService
-from core.commands import AddNodeCommand, CommandStack
+from core.commands import CommandStack
+from core.commands_node import AddNodeCommand, DeleteNodeCommand
 from core.scene import MindMapScene
 from core.view import MindMapView
 from core.node import NodeItem
@@ -60,12 +61,30 @@ class MainController(QMainWindow):
         add_child = menu.addAction('Add child')
         edit_text = menu.addAction('Edit text')
         color_action = menu.addAction('Change color')
+        font_color_action = menu.addAction('Change font color')
         delete_action = menu.addAction('Delete node')
         action = menu.exec(event_pos)
 
         if action == add_child:
             child_node = self.node_service.create_child(node)
             self.command_stack.push(AddNodeCommand(self.scene, child_node, node))
+        elif action == edit_text:
+            node.text_item.setTextInteractionFlags(
+                Qt.TextInteractionFlag.TextEditorInteraction | 
+                Qt.TextInteractionFlag.TextSelectableByMouse | 
+                Qt.TextInteractionFlag.TextSelectableByKeyboard
+                )
+            node.text_item.setFocus()
+        elif action == color_action:
+            color = QColorDialog.getColor(node.color, self, 'Select node color')
+            if color.isValid():
+                node.setColor(color)
+        elif action == font_color_action:
+            color = QColorDialog.getColor(node.color, self, 'Select node color')
+            if color.isValid():
+                node.text_item.setDefaultTextColor(color)
+        elif action == delete_action:
+            self.command_stack.push(DeleteNodeCommand(self.scene, node))
         
     def scene_context_menu(self, pos, event_pos):
         menu = QMenu()
