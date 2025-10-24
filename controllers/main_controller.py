@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QMainWindow, QMenu, QColorDialog
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QColor, QTextCursor
 from PyQt6.QtCore import Qt, QPointF
 
 from controllers.main_window_adapter import MainWindowAdapter
@@ -68,6 +68,7 @@ class MainController(QMainWindow):
         if action == add_child:
             child_node = self.node_service.create_child(node)
             self.command_stack.push(AddNodeCommand(self.scene, child_node, node))
+
         elif action == edit_text:
             node.text_item.setTextInteractionFlags(
                 Qt.TextInteractionFlag.TextEditorInteraction | 
@@ -75,14 +76,17 @@ class MainController(QMainWindow):
                 Qt.TextInteractionFlag.TextSelectableByKeyboard
                 )
             node.text_item.setFocus()
+
         elif action == color_action:
             color = QColorDialog.getColor(node.color, self, 'Select node color')
             if color.isValid():
                 node.setColor(color)
+
         elif action == font_color_action:
             color = QColorDialog.getColor(node.color, self, 'Select node color')
             if color.isValid():
                 node.text_item.setDefaultTextColor(color)
+
         elif action == delete_action:
             self.command_stack.push(DeleteNodeCommand(self.scene, node))
         

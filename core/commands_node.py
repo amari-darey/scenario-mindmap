@@ -28,6 +28,22 @@ class AddNodeCommand(Command):
         self.node.text_item.setDefaultTextColor(self.parent_node.text_item.defaultTextColor())
 
 
+class AddEdgeCommand(Command):
+    def __init__(self, scene, parent_note, node):
+        self.scene = scene
+        self.parent_note = parent_note
+        self.node = node
+        self.edge = None
+    
+    def do(self):
+        self.edge = EdgeItem(self.parent_node, self.node)
+        self.scene.addItem(self.edge)
+    
+    def undo(self):
+        if self.edge: 
+            self.scene.removeItem(self.edge)
+
+
 class EditTextNodeCommand(Command):
     ...
 
