@@ -29,9 +29,9 @@ class AddNodeCommand(Command):
 
 
 class AddEdgeCommand(Command):
-    def __init__(self, scene, parent_note, node):
+    def __init__(self, scene, parent_node, node):
         self.scene = scene
-        self.parent_note = parent_note
+        self.parent_node = parent_node
         self.node = node
         self.edge = None
     

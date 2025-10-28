@@ -58,7 +58,7 @@ class ProjectSelectorController(QMainWindow):
             key = item.text()
             if key in self.recent_projects:
                 path = self.recent_projects[key]
-                self._launch_main_controller(path)
+                self._launch_main_controller(path["path"])
 
     def _create_new_project(self):
         dialog = Dialog()
