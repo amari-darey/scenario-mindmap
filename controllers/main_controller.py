@@ -1,7 +1,10 @@
+import json
+import os
 from PyQt6.QtWidgets import QMainWindow, QMenu, QColorDialog, QFileDialog, QMessageBox
 from PyQt6.QtGui import QColor, QTextCursor
 from PyQt6.QtCore import Qt, QPointF
 
+import config
 from controllers.main_window_adapter import MainWindowAdapter
 from controllers.node_context_service import NodeService
 from core.commands import CommandStack
@@ -17,7 +20,7 @@ from constant import *
 
 
 class MainController(QMainWindow):
-    def __init__(self, load_path: str|bool = False):
+    def __init__(self, project_name: str|bool = False, load_path: str|bool = False):
         super().__init__()
         self.ui = MainWindowAdapter(self)
 
@@ -30,6 +33,7 @@ class MainController(QMainWindow):
 
         self.info_manager = InfoManager(self.ui.info)
 
+        self.project_name = project_name
         self.project_path = load_path
 
         self.app_func()
@@ -47,7 +51,7 @@ class MainController(QMainWindow):
     def connect(self):
         self.ui.act_undo.triggered.connect(self.command_stack.undo)
         self.ui.act_redo.triggered.connect(self.command_stack.redo)
-        self.ui.act_save.triggered.connect(self.action_save)
+        self.ui.act_save.triggered.connect(self.action_save_checker)
         self.ui.act_load.triggered.connect(self.action_load)
 
     def create_node(self, text, position=(0,0), color=QColor(255,255,200), uid=None, note="", font_family=None, font_size=None):
@@ -108,13 +112,45 @@ class MainController(QMainWindow):
             new_node = self.create_node("New node", position=pos)
             self.command_stack.push(AddNodeCommand(self.scene, new_node))
 
-    def action_save(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Save MindMap", "", "MindMap JSON (*.json)")
-        if not path:
-            return
+    def action_save_checker(self):
+        if os.path.exists(self.project_path):
+            self.action_save(self.project_path)
+        else:
+            reply = QMessageBox.question(
+                self,
+                "Save file not found",
+                "Do you want to save it somewhere else?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                path, _ = QFileDialog.getSaveFileName(self, 'Load MindMap', '', 'MindMap JSON (*.json)')
+                self.action_save(path)
+                self.recent_projects_edit(path)
+
+    def recent_projects_edit(self, path):
+        try:
+            item = {}
+            sorted_items = []
+            data = {}
+
+            with open(config.RECENT_PROJECTS_FILE_PATH, 'r', encoding='utf-8') as f:
+                item = json.load(f)
+
+            sorted_items = sorted(item.items(), key=lambda item: item[1]["time"])
+            data = dict(sorted_items)
+            data[self.project_name]["path"] = path
+
+            with open(config.RECENT_PROJECTS_FILE_PATH, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+
+        except Exception as e:
+            print(f"Error loading recent projects: {e}")
+
+
+    def action_save(self, path):
         try:
             JSONStorage.save(path, self.scene)
-            self.file_path = path
             self.info_manager.send_message(f"Saved to {path}")
         except Exception as exc:
             QMessageBox.critical(self, "Error", f"Failed to save: {exc}")
@@ -122,6 +158,7 @@ class MainController(QMainWindow):
     def action_load(self):
         path, _ = QFileDialog.getOpenFileName(self, "Load MindMap", "", "MindMap JSON (*.json)")
         if not path:
+            self.info_manager.send_error_message(f"No path to file")
             return
         try:
             JSONStorage.load(path, self.scene, create_node_fn=self._create_node_for_loader, create_edge_fn=self._create_edge_for_loader)

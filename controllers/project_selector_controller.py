@@ -7,7 +7,7 @@ import config
 
 import os
 import json
-import datetime
+import time
 
 
 class ProjectSelectorController(QMainWindow):
@@ -35,6 +35,9 @@ class ProjectSelectorController(QMainWindow):
             if os.path.exists(config.RECENT_PROJECTS_FILE_PATH):
                 with open(config.RECENT_PROJECTS_FILE_PATH, 'r', encoding='utf-8') as f:
                     self.recent_projects = json.load(f)
+            else:
+                with open(config.RECENT_PROJECTS_FILE_PATH, "w", encoding='utf-8') as f:
+                    json.dump({}, f, ensure_ascii=False)
         except Exception as e:
             print(f"Error loading recent projects: {e}")
 
@@ -58,20 +61,22 @@ class ProjectSelectorController(QMainWindow):
             key = item.text()
             if key in self.recent_projects:
                 path = self.recent_projects[key]
-                self._launch_main_controller(path["path"])
+                self._launch_main_controller(key, path["path"])
 
     def _create_new_project(self):
         dialog = Dialog()
         name, path = dialog.run()
         self.recent_projects[name] = {
-            "path": path,
-            "time": datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
+            "path": f"{path}/{name}.json",
+            "time": int(time.time())
             }
+        with open(f"{path}/{name}.json", "w", encoding="utf-8") as file:
+            json.dump({"nodes": [], "edges": []}, file, ensure_ascii=False)
         self._save_project()
         self._load_recent_project()
         self._show_recent_projects()
         
-    def _launch_main_controller(self, project_path):
-        self.main_controller = MainController(project_path)
+    def _launch_main_controller(self, project_name, project_path):
+        self.main_controller = MainController(project_name, project_path)
         self.main_controller.show()
         self.close()
