@@ -54,9 +54,9 @@ class MainController(QMainWindow):
         self.ui.act_save.triggered.connect(self.action_save_checker)
         self.ui.act_load.triggered.connect(self.action_load)
 
-    def create_node(self, text, position=(0,0), color=QColor(255,255,200), uid=None, note="", font_family=None, font_size=None):
+    def create_node(self, text, position=(0,0), color=QColor(255,255,200), uid=None, note="", font_family=None, font_size=None, font_color=None):
         pos = position if isinstance(position, QPointF) else QPointF(position[0], position[1])
-        node = NodeItem(text, color=color, uid=uid, note=note, font_family=font_family, font_size=font_size)
+        node = NodeItem(text, color=color, uid=uid, note=note, font_family=font_family, font_size=font_size, font_color=font_color)
         node.setPos(pos)
         node.setFlag(node.GraphicsItemFlag.ItemIsFocusable, True)
         return node
@@ -174,7 +174,7 @@ class MainController(QMainWindow):
         except Exception as exc:
             QMessageBox.critical(self, "Error", f"Failed to load: {exc}")
         
-    def _create_node_for_loader(self, text, pos=(0,0), color=None, uid=None, note="", font_family=None, font_size=None):
+    def _create_node_for_loader(self, text, pos=(0,0), color=None, uid=None, note="", font_family=None, font_size=None, font_color=None):
         node = self.create_node(
                     text, 
                     position=pos, 
@@ -182,7 +182,8 @@ class MainController(QMainWindow):
                     uid=uid, 
                     note=note, 
                     font_family=font_family, 
-                    font_size=font_size
+                    font_size=font_size,
+                    font_color=font_color
                     )
         self.command_stack.push(AddNodeCommand(self.scene, node)) 
         return node

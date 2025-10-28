@@ -28,7 +28,7 @@ class JSONStorage:
             pos_x = nd.get('x', 0)
             pos_y = nd.get('y', 0)
             node = create_node_fn(nd.get('text', 'Node'), pos=(pos_x, pos_y), color=color, uid=nd.get('id'),
-                                  note=nd.get('note', ''), font_family=nd.get('font_family'), font_size=nd.get('font_size'))
+                                  note=nd.get('note', ''), font_family=nd.get('font_family'), font_size=nd.get('font_size'), font_color=nd.get("font_color"))
             id_map[nd.get('id')] = node
         for ed in data.get('edges', []):
             parent = id_map.get(ed.get('source'))

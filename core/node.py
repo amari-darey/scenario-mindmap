@@ -7,7 +7,7 @@ from PyQt6.QtCore import QRectF, pyqtSignal, Qt
 class NodeItem(QGraphicsObject):
     moved = pyqtSignal()
 
-    def __init__(self, text='Node', width=160, height=80, color=QColor(255,255,200), uid=None, note='', font_family=None, font_size=None):
+    def __init__(self, text='Node', width=160, height=80, color=QColor(255,255,200), uid=None, note='', font_family=None, font_size=None, font_color=None):
         super().__init__()
         self.uid = uid or str(uuid.uuid4())
         self.rect = QRectF(-width/2, -height/2, width, height)
@@ -16,7 +16,7 @@ class NodeItem(QGraphicsObject):
         self.text_item = QGraphicsTextItem(self)
         self.text_item.setPlainText(text)
         self.text_item.setTextWidth(self.rect.width() - 10)
-        self.text_item.setDefaultTextColor(QColor(30,30,30))
+        self.text_item.setDefaultTextColor(QColor(*font_color) if font_color else QColor(30,30,30))
         self.text_item.setPos(self.rect.left()+5, self.rect.top()+5)
         self.text_item.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
         if font_family or font_size:
@@ -70,6 +70,7 @@ class NodeItem(QGraphicsObject):
 
     def to_dict(self):
         font = self.text_item.font()
+        font_color = self.text_item.defaultTextColor().toRgb()
         return {
             'id': self.uid,
             'text': self.text_item.toPlainText(),
@@ -80,5 +81,6 @@ class NodeItem(QGraphicsObject):
             'color': [self.color.red(), self.color.green(), self.color.blue()],
             'note': self.note,
             'font_family': font.family(),
-            'font_size': font.pointSize()
+            'font_size': font.pointSize(),
+            'font_color': (font_color.red(), font_color.green(), font_color.blue())
         }
