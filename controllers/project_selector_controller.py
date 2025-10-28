@@ -43,7 +43,7 @@ class ProjectSelectorController(QMainWindow):
 
     def _save_project(self):
         try:
-            sorted_items = sorted(self.recent_projects.items(), key=lambda item: item[1]["time"])
+            sorted_items = sorted(self.recent_projects.items(), key=lambda item: item[1]["time"], reverse=True)
             data = dict(sorted_items)
             with open(config.RECENT_PROJECTS_FILE_PATH, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=f, indent=4)
@@ -61,7 +61,11 @@ class ProjectSelectorController(QMainWindow):
             key = item.text()
             if key in self.recent_projects:
                 path = self.recent_projects[key]
+                self._update_time_on_project(key)
                 self._launch_main_controller(key, path["path"])
+
+    def _update_time_on_project(self, key):
+        self.recent_projects[key]["time"] = int(time.time())
 
     def _create_new_project(self):
         dialog = Dialog()
@@ -77,6 +81,7 @@ class ProjectSelectorController(QMainWindow):
         self._show_recent_projects()
         
     def _launch_main_controller(self, project_name, project_path):
+        self._save_project()
         self.main_controller = MainController(project_name, project_path)
         self.main_controller.show()
         self.close()
