@@ -15,7 +15,7 @@ from constant import *
 
 
 class MainController(QMainWindow):
-    def __init__(self):
+    def __init__(self, load_path: str|bool = False):
         super().__init__()
         self.ui = MainWindowAdapter(self)
 
@@ -25,6 +25,8 @@ class MainController(QMainWindow):
         self.view = MindMapView(self.scene)
 
         self.setCentralWidget(self.view)
+
+        self.project_path = load_path
 
         self.app_func()
         self.connect()
