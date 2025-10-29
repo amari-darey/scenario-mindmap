@@ -65,3 +65,45 @@ class DeleteNodeCommand(Command):
         for s, d in self.edges:
             edge = EdgeItem(s, d)
             self.scene.addItem(edge)
+
+
+class ChangeColorCommand(Command):
+    def __init__(self, node, new_color):
+        self.node = node
+        self.new_color = new_color
+        self.old_color = node.color
+
+    def do(self):
+        self.node.setColor(self.new_color)
+    
+    def undo(self):
+        self.node.setColor(self.old_color)
+        self.new_color, self.old_color = self.old_color, self.new_color
+
+
+class ChangeFontColorCommand(Command):
+    def __init__(self, node, new_font_color):
+        self.node = node
+        self.new_font_color = new_font_color
+        self.old_font_color = node.text_item.defaultTextColor()
+
+    def do(self):
+        self.node.text_item.setDefaultTextColor(self.new_font_color)
+    
+    def undo(self):
+        self.node.text_item.setDefaultTextColor(self.old_font_color)
+        self.new_font_color, self.old_font_color = self.old_font_color, self.new_font_color
+
+
+class ChangeFontCommand(Command):
+    def __init__(self, node, new_font):
+        self.node = node
+        self.new_font = new_font
+        self.old_font = self.node.text_item.font()
+
+    def do(self):
+        self.node.text_item.setFont(self.new_font)
+    
+    def undo(self):
+        self.node.text_item.setFont(self.old_font)
+        self.new_font, self.old_font = self.old_font, self.new_font

@@ -7,6 +7,7 @@ from PyQt6.QtCore import Qt, QPointF
 import config
 from controllers.main_window_adapter import MainWindowAdapter
 from controllers.node_context_service import NodeService
+from controllers.inspector_controller import InspectorController
 from core.commands import CommandStack
 from core.commands_node import AddNodeCommand, DeleteNodeCommand, AddEdgeCommand
 from core.scene import MindMapScene
@@ -31,6 +32,11 @@ class MainController(QMainWindow):
 
         self.setCentralWidget(self.view)
 
+        self.command_stack = CommandStack()
+        self.node_service = NodeService(self.scene, self.view, self)
+
+        self.inspector = InspectorController(self.ui, self.scene, self.command_stack)
+
         self.info_manager = InfoManager(self.ui.info)
 
         self.project_name = project_name
@@ -41,8 +47,6 @@ class MainController(QMainWindow):
 
 
     def app_func(self):
-        self.command_stack = CommandStack()
-        self.node_service = NodeService(self.scene, self.view, self)
         self.view.contextMenuEvent = lambda event: self.menu_controller(event)
 
         if self.project_path:
